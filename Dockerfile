@@ -1,4 +1,4 @@
-FROM mongo:latest
+FROM quay.io/webcenter/rancher-glusterfs-server:latest
 MAINTAINER Sebastien LANGOUREAUX <linuxworkgroup@hotmail.com>
 
 # Add python and cron to manage backup
@@ -22,5 +22,5 @@ RUN chmod +x /app/run
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
-VOLUME ["/backup/mongo"]
+VOLUME ["/backup/gluster"]
 CMD ["/app/run"]
