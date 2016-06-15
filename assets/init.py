@@ -27,26 +27,23 @@ class ServiceRun():
           raise KeyError("You must set the target path")
 
       ftp = "ftp://%s@%s:%d%s" % (ftp_user, ftp_server, ftp_port, target_path)
-      cmd = "FTP_PASSWORD=%s duplicity " % (ftp_password)
+      cmd = "FTP_PASSWORD=%s duplicity" % (ftp_password)
 
       # First, we restore the last backup
       if is_init is True:
           print("Starting init the backup folder")
-          os.system(cmd + '--no-encryption ' + ftp + ' ' + BACKUP_DIR + '/')
+          os.system("%s --no-encryption %s %s/" % (cmd, ftp, BACKUP_DIR))
 
 
       else:
           # We backup on FTP
           print("Starting backup")
-          os.system(cmd + '--no-encryption --allow-source-mismatch --full-if-older-than 7D ' + BACKUP_DIR + ' ' + ftp)
+          os.system("%s --no-encryption --allow-source-mismatch --full-if-older-than 7D %s %s" % (cmd, BACKUP_DIR, ftp))
 
           # We clean old backup
           print("Starting cleanup")
-          os.system(cmd + 'remove-all-but-n-full 3 --force --allow-source-mismatch --no-encryption ' + ftp)
-          os.system(cmd + 'cleanup --force --no-encryption ' + ftp)
-
-
-
+          os.system("%s remove-all-but-n-full 3 --force --allow-source-mismatch --no-encryption %s" % (cmd, ftp))
+          os.system("%s cleanup --force --no-encryption %s" % (cmd, ftp))
 
 
   def detect_gluster(self):
@@ -65,7 +62,7 @@ class ServiceRun():
           gluster['volumes'] = os.getenv(service_name_env + '_ENV_GLUSTER_VOLUMES').split(',')
 
           list_gluster.append(gluster)
-          print("Found Gluster host to backup : " + service + " (" + service_name + ")")
+          print("Found Gluster host to backup : %s (%s)" % (service, service_name))
 
 
       return list_gluster
@@ -77,9 +74,9 @@ class ServiceRun():
       for gluster in list_gluster:
           for volume in gluster['volumes']:
               # We mount the volume to backup it
-              path = BACKUP_DIR + '/' + gluster['name'] + '/' + volume
+              path = "%s/%s/%s" % (BACKUP_DIR, gluster['name'], volume)
               os.system('mkdir -p ' + path)
-              cmd = "mount -t glusterfs " + gluster['host'] + ":" + volume " " + path
+              cmd = "mount -t glusterfs %s:%s %s" % (gluster['host'], volume, path)
               os.system(cmd)
               print("Mount %s:%s in %s to backup it" % (gluster['host'], volume, path))
 
@@ -90,7 +87,7 @@ class ServiceRun():
       for gluster in list_gluster:
           for volume in gluster['volumes']:
               # We mount the volume to backup it
-              path = BACKUP_DIR + '/' + gluster['name'] + '/' + volume
+              path = "%s/%s/%s" % (BACKUP_DIR, gluster['name'], volume)
               os.system("umount " + path)
               print("Umount %s" % (path))
 
